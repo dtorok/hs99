@@ -75,6 +75,26 @@ compress = compress' Nothing where
 	compress' (Just lastx) (x:xs) = if lastx == x then c else (x:c) where c = compress' (Just x) xs
 
 
+-- helper
+packGeneric :: Eq a => (a -> Int -> x) -> Maybe (a, Int) -> [a] -> [x]
+packGeneric _ Nothing [] = []
+packGeneric f (Just (x, cnt)) [] = [f x cnt]
+packGeneric f Nothing (x:xs) = packGeneric f (Just (x, 1)) xs
+packGeneric f (Just (lastx, cnt)) (x:xs) = if lastx == x 
+												then                 packGeneric f (Just (lastx, cnt + 1)) xs
+												else (f lastx cnt) : packGeneric f (Just (x, 1)) xs
+-- p9
+pack :: Eq a => [a] -> [[a]]
+pack = packGeneric repeater Nothing where
+	repeater x cnt = (take cnt . repeat) x
+
+
+-- p10
+encode :: Eq a => [a] -> [(Int, a)]
+encode = packGeneric encoder Nothing where
+	encoder x cnt = (cnt, x)
+									
+
 check :: (Eq a, Show a) => a -> a -> IO ()
 check a b = do
 	if a == b then
@@ -98,4 +118,6 @@ test = do
 	check (compress ['a', 'a', 'a', 'a', 'b', 'c', 'c', 'a', 'a', 'd', 'e', 'e', 'e', 'e']) ['a', 'b', 'c', 'a', 'd', 'e']
 	check (compress ['a', 'a', 'a', 'a', 'b', 'c', 'c', 'a', 'a', 'd', 'e', 'e', 'e', 'e', 'f']) ['a', 'b', 'c', 'a', 'd', 'e', 'f']
 	check (compress [] :: [Int]) []
+	check (pack ['a', 'a', 'a', 'a', 'b', 'b', 'c', 'd', 'd', 'd', 'd', 'd', 'e']) [['a', 'a', 'a', 'a'], ['b', 'b'], ['c'], ['d', 'd', 'd', 'd', 'd'], ['e']]
+	check (encode ['a', 'a', 'a', 'a', 'b', 'b', 'c', 'd', 'd', 'd', 'd', 'd', 'e']) [(4, 'a'), (2, 'b'), (1, 'c'), (5, 'd'), (1, 'e')]
 	putStr " done\n"
