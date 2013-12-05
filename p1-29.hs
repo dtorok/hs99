@@ -31,8 +31,11 @@ reverse = reverse' [] where
 	reverse' rxs (x:xs) = reverse' (x:rxs) xs
 
 -- p6
---isPalindrom :: Eq a => [a] -> Bool
---isPalindrom 
+isPalindrome :: Eq a => [a] -> Bool
+isPalindrome xs = isPalindrome' xs (const True) where
+	isPalindrome' [] f = f xs
+	isPalindrome' (x:xs) f = isPalindrome' xs chk where
+		chk (ox:oxs) = (ox == x) && (f oxs)
 
 check :: (Eq a, Show a) => a -> a -> IO ()
 check a b = do
@@ -49,4 +52,6 @@ test = do
 	check (nth 2 [1, 1, 2, 3, 5, 8]) 2
 	check (length [1, 1, 2, 3, 5, 8]) 6
 	check (reverse [1, 1, 2, 3, 5, 8]) [8, 5, 3, 2, 1, 1]
+	check (isPalindrome [1, 1, 2, 3, 5, 8]) False
+	check (isPalindrome [1, 2, 3, 2, 1]) True
 	putStr " done\n"
