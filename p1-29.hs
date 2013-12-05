@@ -1,10 +1,15 @@
 import Prelude hiding (last, length, reverse)
 
+-- datatype for nested lists
+data NL a = NLI a | NLL [(NL a)] -- NL: NestedList  NLI: NestedListItem  NLL: NestedListList
+
+
 -- p1
 last :: [a] -> a
 last [] = undefined
 last (x:[]) = x
 last (x:xs) = last xs
+
 
 -- p2
 penultimate :: [a] -> a
@@ -13,22 +18,26 @@ penultimate (x:[]) = undefined
 penultimate (y:[x]) = y
 penultimate (x:xs) = penultimate xs
 
+
 -- p3
 nth :: Int -> [a] -> a
 nth 0 [] = undefined
 nth 0 (x:xs) = x
 nth i (x:xs) = nth (i-1) xs
 
+
 -- p4
 length :: [a] -> Int
 length [] = 0
 length (x:xs) = (length xs) + 1
+
 
 -- p5
 reverse :: [a] -> [a]
 reverse = reverse' [] where
 	reverse' rxs [] = rxs
 	reverse' rxs (x:xs) = reverse' (x:rxs) xs
+
 
 -- p6
 isPalindrome :: Eq a => [a] -> Bool
@@ -44,13 +53,26 @@ flatten = flatten' [] where
 	flatten' res [] = res
 	flatten' res (xs:xss) = flatten' (res ++ xs) xss
 
-data NL a = NLI a | NLL [(NL a)] -- NL: NestedList  NLI: NestedListItem  NLL: NestedListList
 flattenExt :: [NL a] -> [a]
 flattenExt = reverse . flattenExt' [] where
 	flattenExt' :: [a] -> [NL a] -> [a]
 	flattenExt' res [] = res
 	flattenExt' res ((NLI a) : nl) = flattenExt' (a:res) nl
 	flattenExt' res ((NLL as) : nl) = flattenExt' (flattenExt' res as) nl
+
+flattenExt_v2 :: [NL a] -> [a]
+flattenExt_v2 [] = []
+flattenExt_v2 ((NLI a) : nl) = a : (flattenExt_v2 nl)
+flattenExt_v2 ((NLL as) : nl) = flattenExt_v2 as ++ flattenExt_v2 nl
+
+
+-- p8
+compress :: Eq a => [a] -> [a]
+compress = compress' Nothing where
+	compress' :: Eq a => (Maybe a) -> [a] -> [a]
+	compress' _ [] = []
+	compress' Nothing (x:xs) = x : (compress' (Just x) xs)
+	compress' (Just lastx) (x:xs) = if lastx == x then c else (x:c) where c = compress' (Just x) xs
 
 
 check :: (Eq a, Show a) => a -> a -> IO ()
@@ -71,5 +93,9 @@ test = do
 	check (isPalindrome [1, 1, 2, 3, 5, 8]) False
 	check (isPalindrome [1, 2, 3, 2, 1]) True
 	check (flatten [[1, 1], [2], [3, 5, 8]]) [1, 1, 2, 3, 5, 8]
-	check (flattenExt [NLL [NLL [NLI 1, NLI 1], NLI 2, NLL [NLI 3, NLL [NLI 5, NLI 8]]]]) [1, 1, 2, 3, 5, 8]
+	check (flattenExt [NLL [NLL [NLI 1, NLL [], NLI 1], NLI 2, NLL [NLI 3, NLL [NLI 5, NLI 8, NLL []]]]]) [1, 1, 2, 3, 5, 8]
+	check (flattenExt_v2 [NLL [NLL [NLI 1, NLI 1], NLI 2, NLL [NLI 3, NLL [NLI 5, NLI 8]]]]) [1, 1, 2, 3, 5, 8]
+	check (compress ['a', 'a', 'a', 'a', 'b', 'c', 'c', 'a', 'a', 'd', 'e', 'e', 'e', 'e']) ['a', 'b', 'c', 'a', 'd', 'e']
+	check (compress ['a', 'a', 'a', 'a', 'b', 'c', 'c', 'a', 'a', 'd', 'e', 'e', 'e', 'e', 'f']) ['a', 'b', 'c', 'a', 'd', 'e', 'f']
+	check (compress [] :: [Int]) []
 	putStr " done\n"
