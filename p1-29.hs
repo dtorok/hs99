@@ -37,6 +37,22 @@ isPalindrome xs = isPalindrome' xs (const True) where
 	isPalindrome' (x:xs) f = isPalindrome' xs chk where
 		chk (ox:oxs) = (ox == x) && (f oxs)
 
+-- p7
+flatten :: [[a]] -> [a]
+flatten = flatten' [] where
+	flatten' :: [a] -> [[a]] -> [a]
+	flatten' res [] = res
+	flatten' res (xs:xss) = flatten' (res ++ xs) xss
+
+data NL a = NLI a | NLL [(NL a)] -- NL: NestedList  NLI: NestedListItem  NLL: NestedListList
+flattenExt :: [NL a] -> [a]
+flattenExt = reverse . flattenExt' [] where
+	flattenExt' :: [a] -> [NL a] -> [a]
+	flattenExt' res [] = res
+	flattenExt' res ((NLI a) : nl) = flattenExt' (a:res) nl
+	flattenExt' res ((NLL as) : nl) = flattenExt' (flattenExt' res as) nl
+
+
 check :: (Eq a, Show a) => a -> a -> IO ()
 check a b = do
 	if a == b then
@@ -54,4 +70,6 @@ test = do
 	check (reverse [1, 1, 2, 3, 5, 8]) [8, 5, 3, 2, 1, 1]
 	check (isPalindrome [1, 1, 2, 3, 5, 8]) False
 	check (isPalindrome [1, 2, 3, 2, 1]) True
+	check (flatten [[1, 1], [2], [3, 5, 8]]) [1, 1, 2, 3, 5, 8]
+	check (flattenExt [NLL [NLL [NLI 1, NLI 1], NLI 2, NLL [NLI 3, NLL [NLI 5, NLI 8]]]]) [1, 1, 2, 3, 5, 8]
 	putStr " done\n"
