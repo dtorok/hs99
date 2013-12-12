@@ -1,4 +1,4 @@
-import Prelude hiding (last, length, reverse)
+import Prelude hiding (last, length, reverse, drop)
 
 -- datatype for nested lists
 data NL a b = NLIa a | NLIb b | NLL [(NL a b)] deriving (Eq, Show) -- NL: NestedList  NLI: NestedListItem  NLL: NestedListList
@@ -115,6 +115,15 @@ duplicate (x:xs) = x:x:(duplicate xs)
 duplicateN :: Int -> [a] -> [a]
 duplicateN cnt xs = concat $ map (replicate cnt) xs
 
+
+-- p16
+drop :: Int -> [a] -> [a]
+drop = drop' 0 where
+	drop' i cnt (_:xs) | i == cnt - 1 = drop' 0 cnt xs
+	drop' i cnt (x:xs)                = x : (drop' (i+1) cnt xs)
+	drop' _ _   []                    = []
+
+
 -- helper
 packGeneric :: Eq a => (a -> Int -> x) -> Maybe (a, Int) -> [a] -> [x]
 packGeneric _ Nothing [] = []
@@ -154,4 +163,6 @@ test = do
 	check (encodeDirect ['a', 'a', 'a', 'a', 'b', 'b', 'c', 'd', 'd', 'd', 'd', 'd', 'e']) [(4, 'a'), (2, 'b'), (1, 'c'), (5, 'd'), (1, 'e')]
 	check (duplicate ['a', 'b', 'c', 'c', 'd']) ['a', 'a', 'b', 'b', 'c', 'c', 'c', 'c', 'd', 'd']
 	check (duplicateN 3 ['a', 'b', 'c', 'c', 'd']) ['a', 'a', 'a', 'b', 'b', 'b', 'c', 'c', 'c', 'c', 'c', 'c', 'd', 'd', 'd']
+	check (drop 3 ['a', 'a', 'a', 'a', 'b', 'b', 'c', 'd', 'd', 'd', 'd', 'd', 'e']) ['a', 'a', 'a', 'b', 'c', 'd', 'd', 'd', 'e']
+
 	putStr " done\n"
