@@ -111,6 +111,10 @@ duplicate [] = []
 duplicate (x:xs) = x:x:(duplicate xs)
 
 
+-- p15
+duplicateN :: Int -> [a] -> [a]
+duplicateN cnt xs = concat $ map (replicate cnt) xs
+
 -- helper
 packGeneric :: Eq a => (a -> Int -> x) -> Maybe (a, Int) -> [a] -> [x]
 packGeneric _ Nothing [] = []
@@ -149,4 +153,5 @@ test = do
 	check (decode [(4, 'a'), (1, 'b'), (2, 'c'), (2, 'a'), (1, 'd'), (4, 'e')]) ['a', 'a', 'a', 'a', 'b', 'c', 'c', 'a', 'a', 'd', 'e', 'e', 'e', 'e']
 	check (encodeDirect ['a', 'a', 'a', 'a', 'b', 'b', 'c', 'd', 'd', 'd', 'd', 'd', 'e']) [(4, 'a'), (2, 'b'), (1, 'c'), (5, 'd'), (1, 'e')]
 	check (duplicate ['a', 'b', 'c', 'c', 'd']) ['a', 'a', 'b', 'b', 'c', 'c', 'c', 'c', 'd', 'd']
+	check (duplicateN 3 ['a', 'b', 'c', 'c', 'd']) ['a', 'a', 'a', 'b', 'b', 'b', 'c', 'c', 'c', 'c', 'c', 'c', 'd', 'd', 'd']
 	putStr " done\n"
