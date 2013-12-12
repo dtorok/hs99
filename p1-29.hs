@@ -86,11 +86,18 @@ encode :: Eq a => [a] -> [(Int, a)]
 encode = packGeneric encoder Nothing where
 	encoder x cnt = (cnt, x)
 
+
 -- p11
 encodeModified :: Eq a => [a] -> [NL a (Int, a)]
 encodeModified = packGeneric encoder Nothing where
 	encoder x cnt = if cnt == 1 then (NLIa x) else (NLIb (cnt, x))
-									
+
+
+-- p12
+decode :: [(Int, a)] -> [a]
+decode encoded = concat $ map decode' encoded where
+	decode' (cnt, item) = take cnt $ repeat item
+
 
 -- helper
 packGeneric :: Eq a => (a -> Int -> x) -> Maybe (a, Int) -> [a] -> [x]
@@ -127,4 +134,5 @@ test = do
 	check (pack ['a', 'a', 'a', 'a', 'b', 'b', 'c', 'd', 'd', 'd', 'd', 'd', 'e']) [['a', 'a', 'a', 'a'], ['b', 'b'], ['c'], ['d', 'd', 'd', 'd', 'd'], ['e']]
 	check (encode ['a', 'a', 'a', 'a', 'b', 'b', 'c', 'd', 'd', 'd', 'd', 'd', 'e']) [(4, 'a'), (2, 'b'), (1, 'c'), (5, 'd'), (1, 'e')]
 	check (encodeModified ['a', 'a', 'a', 'a', 'b', 'c', 'c', 'a', 'a', 'd', 'e', 'e', 'e', 'e']) [NLIb (4, 'a'), NLIa 'b', NLIb (2,'c'), NLIb (2,'a'), NLIa 'd', NLIb (4,'e')]
+	check (decode [(4, 'a'), (1, 'b'), (2, 'c'), (2, 'a'), (1, 'd'), (4, 'e')]) ['a', 'a', 'a', 'a', 'b', 'c', 'c', 'a', 'a', 'd', 'e', 'e', 'e', 'e']
 	putStr " done\n"
