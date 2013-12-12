@@ -96,13 +96,20 @@ encodeModified = packGeneric encoder Nothing where
 -- p12
 decode :: [(Int, a)] -> [a]
 decode encoded = concat $ map decode' encoded where
-	decode' (cnt, item) = take cnt $ repeat item
+	decode' (cnt, item) = replicate cnt item
 
 
 -- p13
 encodeDirect :: Eq a => [a] -> [(Int, a)]
 encodeDirect = packGeneric encoder Nothing where
 	encoder x cnt = (cnt, x)
+
+
+-- p14
+duplicate :: [a] -> [a]
+duplicate [] = []
+duplicate (x:xs) = x:x:(duplicate xs)
+
 
 -- helper
 packGeneric :: Eq a => (a -> Int -> x) -> Maybe (a, Int) -> [a] -> [x]
@@ -141,4 +148,5 @@ test = do
 	check (encodeModified ['a', 'a', 'a', 'a', 'b', 'c', 'c', 'a', 'a', 'd', 'e', 'e', 'e', 'e']) [NLIb (4, 'a'), NLIa 'b', NLIb (2,'c'), NLIb (2,'a'), NLIa 'd', NLIb (4,'e')]
 	check (decode [(4, 'a'), (1, 'b'), (2, 'c'), (2, 'a'), (1, 'd'), (4, 'e')]) ['a', 'a', 'a', 'a', 'b', 'c', 'c', 'a', 'a', 'd', 'e', 'e', 'e', 'e']
 	check (encodeDirect ['a', 'a', 'a', 'a', 'b', 'b', 'c', 'd', 'd', 'd', 'd', 'd', 'e']) [(4, 'a'), (2, 'b'), (1, 'c'), (5, 'd'), (1, 'e')]
+	check (duplicate ['a', 'b', 'c', 'c', 'd']) ['a', 'a', 'b', 'b', 'c', 'c', 'c', 'c', 'd', 'd']
 	putStr " done\n"
