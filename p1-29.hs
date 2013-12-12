@@ -1,7 +1,7 @@
 import Prelude hiding (last, length, reverse)
 
 -- datatype for nested lists
-data NL a = NLI a | NLL [(NL a)] -- NL: NestedList  NLI: NestedListItem  NLL: NestedListList
+data NL a b = NLIa a | NLIb b | NLL [(NL a b)] deriving (Eq, Show) -- NL: NestedList  NLI: NestedListItem  NLL: NestedListList
 
 
 -- p1
@@ -53,16 +53,16 @@ flatten = flatten' [] where
 	flatten' res [] = res
 	flatten' res (xs:xss) = flatten' (res ++ xs) xss
 
-flattenExt :: [NL a] -> [a]
+flattenExt :: [NL a b] -> [a]
 flattenExt = reverse . flattenExt' [] where
-	flattenExt' :: [a] -> [NL a] -> [a]
+	flattenExt' :: [a] -> [NL a b] -> [a]
 	flattenExt' res [] = res
-	flattenExt' res ((NLI a) : nl) = flattenExt' (a:res) nl
+	flattenExt' res ((NLIa a) : nl) = flattenExt' (a:res) nl
 	flattenExt' res ((NLL as) : nl) = flattenExt' (flattenExt' res as) nl
 
-flattenExt_v2 :: [NL a] -> [a]
+flattenExt_v2 :: [NL a b] -> [a]
 flattenExt_v2 [] = []
-flattenExt_v2 ((NLI a) : nl) = a : (flattenExt_v2 nl)
+flattenExt_v2 ((NLIa a) : nl) = a : (flattenExt_v2 nl)
 flattenExt_v2 ((NLL as) : nl) = flattenExt_v2 as ++ flattenExt_v2 nl
 
 
@@ -75,14 +75,6 @@ compress = compress' Nothing where
 	compress' (Just lastx) (x:xs) = if lastx == x then c else (x:c) where c = compress' (Just x) xs
 
 
--- helper
-packGeneric :: Eq a => (a -> Int -> x) -> Maybe (a, Int) -> [a] -> [x]
-packGeneric _ Nothing [] = []
-packGeneric f (Just (x, cnt)) [] = [f x cnt]
-packGeneric f Nothing (x:xs) = packGeneric f (Just (x, 1)) xs
-packGeneric f (Just (lastx, cnt)) (x:xs) = if lastx == x 
-												then                 packGeneric f (Just (lastx, cnt + 1)) xs
-												else (f lastx cnt) : packGeneric f (Just (x, 1)) xs
 -- p9
 pack :: Eq a => [a] -> [[a]]
 pack = packGeneric repeater Nothing where
@@ -93,7 +85,21 @@ pack = packGeneric repeater Nothing where
 encode :: Eq a => [a] -> [(Int, a)]
 encode = packGeneric encoder Nothing where
 	encoder x cnt = (cnt, x)
+
+-- p11
+encodeModified :: Eq a => [a] -> [NL a (Int, a)]
+encodeModified = packGeneric encoder Nothing where
+	encoder x cnt = if cnt == 1 then (NLIa x) else (NLIb (cnt, x))
 									
+
+-- helper
+packGeneric :: Eq a => (a -> Int -> x) -> Maybe (a, Int) -> [a] -> [x]
+packGeneric _ Nothing [] = []
+packGeneric f (Just (x, cnt)) [] = [f x cnt]
+packGeneric f Nothing (x:xs) = packGeneric f (Just (x, 1)) xs
+packGeneric f (Just (lastx, cnt)) (x:xs) = if lastx == x 
+												then                 packGeneric f (Just (lastx, cnt + 1)) xs
+												else (f lastx cnt) : packGeneric f (Just (x, 1)) xs
 
 check :: (Eq a, Show a) => a -> a -> IO ()
 check a b = do
@@ -113,11 +119,12 @@ test = do
 	check (isPalindrome [1, 1, 2, 3, 5, 8]) False
 	check (isPalindrome [1, 2, 3, 2, 1]) True
 	check (flatten [[1, 1], [2], [3, 5, 8]]) [1, 1, 2, 3, 5, 8]
-	check (flattenExt [NLL [NLL [NLI 1, NLL [], NLI 1], NLI 2, NLL [NLI 3, NLL [NLI 5, NLI 8, NLL []]]]]) [1, 1, 2, 3, 5, 8]
-	check (flattenExt_v2 [NLL [NLL [NLI 1, NLI 1], NLI 2, NLL [NLI 3, NLL [NLI 5, NLI 8]]]]) [1, 1, 2, 3, 5, 8]
+	check (flattenExt [NLL [NLL [NLIa 1, NLL [], NLIa 1], NLIa 2, NLL [NLIa 3, NLL [NLIa 5, NLIa 8, NLL []]]]]) [1, 1, 2, 3, 5, 8]
+	check (flattenExt_v2 [NLL [NLL [NLIa 1, NLIa 1], NLIa 2, NLL [NLIa 3, NLL [NLIa 5, NLIa 8]]]]) [1, 1, 2, 3, 5, 8]
 	check (compress ['a', 'a', 'a', 'a', 'b', 'c', 'c', 'a', 'a', 'd', 'e', 'e', 'e', 'e']) ['a', 'b', 'c', 'a', 'd', 'e']
 	check (compress ['a', 'a', 'a', 'a', 'b', 'c', 'c', 'a', 'a', 'd', 'e', 'e', 'e', 'e', 'f']) ['a', 'b', 'c', 'a', 'd', 'e', 'f']
 	check (compress [] :: [Int]) []
 	check (pack ['a', 'a', 'a', 'a', 'b', 'b', 'c', 'd', 'd', 'd', 'd', 'd', 'e']) [['a', 'a', 'a', 'a'], ['b', 'b'], ['c'], ['d', 'd', 'd', 'd', 'd'], ['e']]
 	check (encode ['a', 'a', 'a', 'a', 'b', 'b', 'c', 'd', 'd', 'd', 'd', 'd', 'e']) [(4, 'a'), (2, 'b'), (1, 'c'), (5, 'd'), (1, 'e')]
+	check (encodeModified ['a', 'a', 'a', 'a', 'b', 'c', 'c', 'a', 'a', 'd', 'e', 'e', 'e', 'e']) [NLIb (4, 'a'), NLIa 'b', NLIb (2,'c'), NLIb (2,'a'), NLIa 'd', NLIb (4,'e')]
 	putStr " done\n"
