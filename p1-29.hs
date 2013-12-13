@@ -135,6 +135,14 @@ split_v2 = split' 0 where
 	split' i limit (x:xs) = if i < limit then (x:xsa, xsb) else (xsa, x:xsb) where
 								(xsa, xsb) = split' (i+1) limit xs
 
+
+-- p18
+slice :: Int -> Int -> [a] -> [a]
+slice 0 0 _      = []
+slice 0 k (x:xs) = x : (slice  0    (k-1) xs)
+slice i k (x:xs) =      slice (i-1) (k-1) xs
+
+
 -- helper
 packGeneric :: Eq a => (a -> Int -> x) -> Maybe (a, Int) -> [a] -> [x]
 packGeneric _ Nothing [] = []
@@ -177,5 +185,6 @@ test = do
 	check (drop 3 ['a', 'a', 'a', 'a', 'b', 'b', 'c', 'd', 'd', 'd', 'd', 'd', 'e']) ['a', 'a', 'a', 'b', 'c', 'd', 'd', 'd', 'e']
 	check (split 3 ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k']) (['a', 'b', 'c'], ['d', 'e', 'f', 'g', 'h', 'i', 'j', 'k'])
 	check (split_v2 3 ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k']) (['a', 'b', 'c'], ['d', 'e', 'f', 'g', 'h', 'i', 'j', 'k'])
+	check (slice 3 7 ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k']) ['d', 'e', 'f', 'g']
 
 	putStr " done\n"
