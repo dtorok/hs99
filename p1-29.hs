@@ -1,4 +1,5 @@
 import Prelude hiding (last, length, reverse, drop)
+import qualified Prelude as Pr
 
 -- datatype for nested lists
 data NL a b = NLIa a | NLIb b | NLL [(NL a b)] deriving (Eq, Show) -- NL: NestedList  NLI: NestedListItem  NLL: NestedListList
@@ -124,6 +125,16 @@ drop = drop' 0 where
 	drop' _ _   []                    = []
 
 
+-- p17
+split :: Int -> [a] -> ([a], [a])
+split cnt xs = (take cnt xs, Pr.drop cnt xs)
+
+split_v2 :: Int -> [a] -> ([a], [a])
+split_v2 = split' 0 where
+	split' _ _      []    = ([], [])
+	split' i limit (x:xs) = if i < limit then (x:xsa, xsb) else (xsa, x:xsb) where
+								(xsa, xsb) = split' (i+1) limit xs
+
 -- helper
 packGeneric :: Eq a => (a -> Int -> x) -> Maybe (a, Int) -> [a] -> [x]
 packGeneric _ Nothing [] = []
@@ -164,5 +175,7 @@ test = do
 	check (duplicate ['a', 'b', 'c', 'c', 'd']) ['a', 'a', 'b', 'b', 'c', 'c', 'c', 'c', 'd', 'd']
 	check (duplicateN 3 ['a', 'b', 'c', 'c', 'd']) ['a', 'a', 'a', 'b', 'b', 'b', 'c', 'c', 'c', 'c', 'c', 'c', 'd', 'd', 'd']
 	check (drop 3 ['a', 'a', 'a', 'a', 'b', 'b', 'c', 'd', 'd', 'd', 'd', 'd', 'e']) ['a', 'a', 'a', 'b', 'c', 'd', 'd', 'd', 'e']
+	check (split 3 ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k']) (['a', 'b', 'c'], ['d', 'e', 'f', 'g', 'h', 'i', 'j', 'k'])
+	check (split_v2 3 ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k']) (['a', 'b', 'c'], ['d', 'e', 'f', 'g', 'h', 'i', 'j', 'k'])
 
 	putStr " done\n"
