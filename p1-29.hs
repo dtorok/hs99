@@ -152,6 +152,13 @@ rotate = rotate' id where
 	rotate' f rot  xs    | rot < 0 = reverse $ rotate' f (-rot) (reverse xs)
 
 
+-- p20
+removeAt :: Int -> [a] -> ([a], Maybe a)
+removeAt _  []             = ([], Nothing)
+removeAt k (x:xs) | k == 0 = (xs, Just x)
+removeAt k (x:xs)          = (x:rxs, r) where (rxs, r) = removeAt (k-1) xs
+
+
 -- helper
 packGeneric :: Eq a => (a -> Int -> x) -> Maybe (a, Int) -> [a] -> [x]
 packGeneric _ Nothing [] = []
@@ -197,5 +204,6 @@ test = do
 	check (slice 3 7 ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k']) ['d', 'e', 'f', 'g']
 	check (rotate 3 ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k']) ['d', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'a', 'b', 'c']
 	check (rotate (-2) ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k']) ['j', 'k', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
+	check (removeAt 1 ['a', 'b', 'c', 'd']) (['a', 'c', 'd'], Just 'b')
 
 	putStr " done\n"
