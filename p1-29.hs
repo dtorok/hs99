@@ -143,6 +143,15 @@ slice 0 k (x:xs) = x : (slice  0    (k-1) xs)
 slice i k (x:xs) =      slice (i-1) (k-1) xs
 
 
+-- p19
+rotate :: Int -> [a] -> [a]
+rotate = rotate' id where
+	rotate' f _    []    = f []
+	rotate' f 0   (x:xs) =      x : (rotate' f 0 xs)
+	rotate' f rot (x:xs) | rot > 0 = rotate' (\ rxs -> f (x:rxs) ) (rot-1) xs
+	rotate' f rot  xs    | rot < 0 = reverse $ rotate' f (-rot) (reverse xs)
+
+
 -- helper
 packGeneric :: Eq a => (a -> Int -> x) -> Maybe (a, Int) -> [a] -> [x]
 packGeneric _ Nothing [] = []
@@ -186,5 +195,7 @@ test = do
 	check (split 3 ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k']) (['a', 'b', 'c'], ['d', 'e', 'f', 'g', 'h', 'i', 'j', 'k'])
 	check (split_v2 3 ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k']) (['a', 'b', 'c'], ['d', 'e', 'f', 'g', 'h', 'i', 'j', 'k'])
 	check (slice 3 7 ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k']) ['d', 'e', 'f', 'g']
+	check (rotate 3 ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k']) ['d', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'a', 'b', 'c']
+	check (rotate (-2) ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k']) ['j', 'k', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
 
 	putStr " done\n"
