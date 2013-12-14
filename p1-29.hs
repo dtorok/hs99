@@ -166,6 +166,12 @@ insertAt new 0    xs    = new : xs
 insertAt new loc (x:xs) = x : insertAt new (loc-1) xs
 
 
+-- p22
+range :: Int -> Int -> [Int]
+range fn ln | fn == ln = [fn]
+range fn ln = fn : (range (fn+1) ln)
+
+
 -- helper
 packGeneric :: Eq a => (a -> Int -> x) -> Maybe (a, Int) -> [a] -> [x]
 packGeneric _ Nothing [] = []
@@ -213,5 +219,6 @@ test = do
 	check (rotate (-2) ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k']) ['j', 'k', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
 	check (removeAt 1 ['a', 'b', 'c', 'd']) (['a', 'c', 'd'], Just 'b')
 	check (insertAt 'n' 1 ['a', 'b', 'c', 'd']) ['a', 'n', 'b', 'c', 'd']
+	check (range 4 9) [4, 5, 6, 7, 8, 9]
 
 	putStr " done\n"
