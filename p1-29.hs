@@ -161,6 +161,7 @@ removeAt k (x:xs)          = (x:rxs, r) where (rxs, r) = removeAt (k-1) xs
 
 -- p21
 insertAt :: a -> Int -> [a] -> [a]
+insertAt new _    []    = []
 insertAt new 0    xs    = new : xs
 insertAt new loc (x:xs) = x : insertAt new (loc-1) xs
 
