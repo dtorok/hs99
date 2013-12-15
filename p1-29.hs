@@ -184,6 +184,18 @@ range fn ln = fn : (range (fn+1) ln)
 -- hmm, how to modell random numbers?
 
 
+-- p26
+--combinations :: Int -> [a] -> [[a]]
+combinations :: Int -> [Int] -> [[Int]]
+combinations k list = combinations' [] k where
+	combinations' poses 0 = [map (list !!) poses] -- undefined -- create the combination
+	combinations' poses k = concat $ map mkCombination filteredRange where
+		mkCombination p = combinations' (p:poses) (k-1)
+		filteredRange = filter notInPoses (range 0 maxpos)
+		notInPoses p = not $ p `elem` poses
+
+	maxpos = (length list)-1
+
 -- helper
 packGeneric :: Eq a => (a -> Int -> x) -> Maybe (a, Int) -> [a] -> [x]
 packGeneric _ Nothing [] = []
@@ -232,5 +244,6 @@ test = do
 	check (removeAt 1 ['a', 'b', 'c', 'd']) (['a', 'c', 'd'], Just 'b')
 	check (insertAt 'n' 1 ['a', 'b', 'c', 'd']) ['a', 'n', 'b', 'c', 'd']
 	check (range 4 9) [4, 5, 6, 7, 8, 9]
+	check (combinations 2 [1,2,3]) [[2,1],[3,1],[1,2],[3,2],[1,3],[2,3]]
 
 	putStr " done\n"
