@@ -172,6 +172,18 @@ range fn ln | fn == ln = [fn]
 range fn ln = fn : (range (fn+1) ln)
 
 
+-- p23
+-- hmm, how to modell random numbers?
+
+
+-- p24
+-- hmm, how to modell random numbers?
+
+
+-- p25
+-- hmm, how to modell random numbers?
+
+
 -- helper
 packGeneric :: Eq a => (a -> Int -> x) -> Maybe (a, Int) -> [a] -> [x]
 packGeneric _ Nothing [] = []
