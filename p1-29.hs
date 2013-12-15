@@ -186,7 +186,7 @@ range fn ln = fn : (range (fn+1) ln)
 
 -- p26
 --combinations :: Int -> [a] -> [[a]]
-combinations :: Int -> [Int] -> [[Int]]
+combinations :: Int -> [a] -> [[a]]
 combinations k list = combinations' [] k where
 	combinations' poses 0 = [map (list !!) poses] -- undefined -- create the combination
 	combinations' poses k = concat $ map mkCombination filteredRange where
